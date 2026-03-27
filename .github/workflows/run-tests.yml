@@ -24,22 +24,31 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
+      - name: Check if package.json exists
+        id: check-package
+        run: |
+          if [ -f package.json ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+        shell: bash
+
       - name: Install dependencies
+        if: steps.check-package.outputs.exists == 'true'
         run: npm ci
 
       - name: Run tests
+        if: steps.check-package.outputs.exists == 'true'
         run: npm test -- --coverage
         
       - name: Upload coverage reports
+        if: steps.check-package.outputs.exists == 'true'
         uses: codecov/codecov-action@v3
-        if: always()
         with:
           files: ./coverage/coverage-final.json
           fail_ci_if_error: false
 
-      - name: Check test results
-        if: failure()
-        run: |
-          echo "❌ Les tests ont échoué"
-          echo "Veuillez corriger les erreurs avant de merger"
-          exit 1
+      - name: Skip tests - package.json not found
+        if: steps.check-package.outputs.exists == 'false'
+        run: echo "⏭️  Tests skipped: package.json not found yet (repo initialization phase)"
