@@ -1,0 +1,1 @@
+@workspace #file:CLAUDE.md Tu es maintenant en contexte sur le projet FreelanceFlow. Lis ce fichier et confirme que tu as compris la stack, les versions et les conventions du projet.
